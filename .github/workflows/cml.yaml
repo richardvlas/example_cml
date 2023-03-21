@@ -1,24 +1,19 @@
-name: train-my-model
+name: model-training
 on: [push]
 jobs:
-  train-model:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v4
       - uses: iterative/setup-cml@v1
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
       - name: Train model
         env:
-          repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pip install -r requirements.txt
           python train.py
 
-          # Create CML report
           cat metrics.txt >> report.md
-          echo '![](./plot.png "Confusion Matrix")' >> report.md
+          echo "![](./plot.png)" >> report.md
           cml comment create report.md
